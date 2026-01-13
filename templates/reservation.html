@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-lg-6 col-md-8">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="card-header text-center py-4 bg-dark text-white">
+                <h3 class="fw-bold m-0">🍽️ Masa Rezervasyonu</h3>
+                <small class="opacity-75">Siz gelmeden yeriniz hazır olsun.</small>
+            </div>
+            <div class="card-body p-5 bg-white">
+                <form action="/rezervasyon" method="POST">
+                    <div class="form-floating mb-3">
+                        <input type="text" name="name" class="form-control" id="floatingName" placeholder="Ad Soyad" required>
+                        <label for="floatingName">Adınız Soyadınız</label>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="number" name="party_size" class="form-control" id="floatingPerson" placeholder="Kişi" required>
+                                <label for="floatingPerson">Kaç Kişi?</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="datetime-local" name="date_time" class="form-control" id="floatingDate" required>
+                                <label for="floatingDate">Tarih & Saat</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-5 rounded-pill shadow-sm">Rezervasyonu Onayla ✅</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

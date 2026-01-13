@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white text-center"><h4>Personel Girişi</h4></div>
+            <div class="card-body">
+                {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+                <form method="POST">
+                    <input type="password" name="password" class="form-control mb-3" placeholder="Şifre (admin123)" required>
+                    <button type="submit" class="btn btn-dark w-100">Giriş Yap</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

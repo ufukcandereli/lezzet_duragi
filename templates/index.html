@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded-4">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold m-0" style="color: #2d3436; letter-spacing: -1px;">Günün Menüsü 🍴</h2>
+            <p class="text-muted m-0 mt-1">Şefimizin bugüne özel hazırladığı taze lezzetler.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <span class="badge bg-dark fs-6 px-4 py-2 rounded-pill shadow">
+                📅 Bugün: {{ day }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4"> <div class="col-lg-8">
+        {% if menu_empty %}
+            <div class="card p-5 text-center border-0 shadow-sm rounded-4">
+                <div class="mb-3 display-1">👨‍🍳</div>
+                <h3>Menü Hazırlanıyor...</h3>
+                <p class="text-muted">Şefimiz bugün ({{ day }}) için henüz yemekleri sisteme girmedi.</p>
+            </div>
+        {% else %}
+            <div class="row g-4">
+                {% for item in menu %}
+                <div class="col-md-6">
+                    <div class="card h-100 menu-card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
+                        <div style="height: 240px; position: relative;">
+                            <img src="{{ url_for('static', filename='img/' + item.image) }}" 
+                                 class="w-100 h-100" 
+                                 style="object-fit: cover;" 
+                                 alt="{{ item.name }}"
+                                 onerror="this.src='https://via.placeholder.com/400x240?text=Resim+Yok'">
+                            <span class="position-absolute top-0 end-0 m-3 badge bg-white text-dark shadow-sm px-3 py-2 rounded-pill fw-bold">
+                                {{ item.category }}
+                            </span>
+                        </div>
+                        
+                        <div class="card-body p-4 d-flex flex-column">
+                            <h5 class="fw-bold mb-1 text-dark">{{ item.name }}</h5>
+                            <div class="mt-auto pt-4 d-flex justify-content-between align-items-center">
+                                <h4 class="text-primary fw-bold mb-0" style="letter-spacing: -0.5px;">{{ item.price }} ₺</h4>
+                                <button onclick="sepeteEkle('{{ item.name }}')" class="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                                    Ekle +
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <div style="position: sticky; top: 100px; z-index: 10;">
+            
+            <div class="card border-0 mb-4 text-white p-4 shadow-sm" style="background: linear-gradient(135deg, #2d3436 0%, #000000 100%); border-radius: 16px;">
+                <div class="d-flex align-items-center mb-3">
+                    <span class="fs-2 me-3">✨</span>
+                    <div>
+                        <h5 class="fw-bold m-0">Özel Akşam Yemeği?</h5>
+                        <small class="opacity-75">Yeriniz şimdiden hazır olsun.</small>
+                    </div>
+                </div>
+                <a href="/rezervasyon" class="btn btn-light w-100 fw-bold rounded-pill py-2">Rezervasyon Yap</a>
+            </div>
+
+            <div class="card border-0 p-4 shadow-sm" style="border-radius: 16px;">
+                <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                    <div class="bg-primary bg-opacity-10 p-2 rounded-circle me-3 text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-cart-fill" viewBox="0 0 16 16">
+                            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold m-0">Hızlı Sipariş</h5>
+                        <small class="text-muted">Masa numaranızı seçin</small>
+                    </div>
+                </div>
+
+                <form action="/order" method="POST">
+                    <div class="mb-3">
+                        <label class="fw-bold small text-muted mb-1 ms-1">Masa No</label>
+                        <select name="table_no" class="form-select py-2 fw-bold">
+                            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="fw-bold small text-muted mb-1 ms-1">Sepet Özeti</label>
+                        <textarea name="items" id="sepet" class="form-control bg-light border-0" rows="4" readonly placeholder="Menüden ürün ekleyin..." style="resize: none;"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow transition-btn">
+                        Siparişi Gönder 🚀
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function sepeteEkle(yemek) {
+        let kutu = document.getElementById('sepet');
+        let currentVal = kutu.value;
+        
+        // Sepet efekti
+        kutu.style.backgroundColor = "#ffeaa7";
+        setTimeout(() => { kutu.style.backgroundColor = "#f8f9fa"; }, 300);
+
+        if (currentVal.trim() === "") {
+            kutu.value = yemek;
+        } else {
+            kutu.value = currentVal + ", " + yemek;
+        }
+    }
+</script>
+{% endblock %}

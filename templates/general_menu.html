@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold" style="color: #2c3e50;">Haftalık Lezzet Programı</h1>
+    <p class="lead text-muted">Hangi gün hangi özel lezzetlerin çıktığını buradan takip edebilirsiniz.</p>
+    <a href="/rezervasyon" class="btn btn-primary btn-lg px-5 shadow-sm">Masayı Şimdi Ayırt</a>
+</div>
+<div class="row">
+    {% for day_eng, items in weekly_menu.items() %}
+        {% if items %}
+        <div class="col-12 mb-5">
+            <div class="p-3 mb-3 rounded-3 shadow-sm" style="background-color: #2c3e50; color: white;">
+                <h3 class="m-0 fw-bold">📅 {{ days_tr[day_eng] }} Menüsü</h3>
+            </div>
+            <div class="row">
+                {% for item in items %}
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div style="height: 180px; overflow: hidden; border-radius: 12px 12px 0 0;">
+                            <img src="{{ url_for('static', filename='img/' + item.image) }}" class="w-100 h-100" style="object-fit: cover;" onerror="this.src='https://via.placeholder.com/300x200?text=Resim+Yok'">
+                        </div>
+                        <div class="card-body text-center">
+                            <h5 class="fw-bold text-dark">{{ item.name }}</h5>
+                            <span class="badge bg-warning text-dark mb-2">{{ item.category }}</span>
+                            <h4 class="text-primary">{{ item.price }} TL</h4>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

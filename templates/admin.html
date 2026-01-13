@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-dark">Yönetici Paneli</h2>
+    <a href="/logout" class="btn btn-outline-danger btn-sm px-4">Çıkış Yap</a>
+</div>
+
+<div class="card mb-4 border-0 shadow-sm">
+    <div class="card-header bg-dark text-white fw-bold">Anlık Masa Durumları</div>
+    <div class="card-body d-flex justify-content-around flex-wrap">
+        {% for table in tables %}
+            <div class="text-center p-3 m-1 rounded border shadow-sm {{ 'bg-danger bg-opacity-10' if table.status == 'Occupied' else 'bg-success bg-opacity-10' }}" style="min-width: 100px;">
+                <h4 class="m-0 fw-bold {{ 'text-danger' if table.status == 'Occupied' else 'text-success' }}">Masa {{ table.id }}</h4>
+                <small class="fw-bold {{ 'text-danger' if table.status == 'Occupied' else 'text-success' }}">
+                    {{ 'DOLU 🔴' if table.status == 'Occupied' else 'BOŞ 🟢' }}
+                </small>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-header bg-primary text-white fw-bold">Yemek Ekle</div>
+            <div class="card-body">
+                <form action="/add_item" method="POST">
+                    <div class="mb-2"><input type="text" name="name" class="form-control" placeholder="Yemek Adı" required></div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-6"><input type="number" name="price" class="form-control" placeholder="Fiyat" required></div>
+                        <div class="col-6"><select name="category" class="form-select"><option>Ana Yemek</option><option>Ara Sıcak</option><option>Tatlı</option><option>İçecek</option></select></div>
+                    </div>
+                    <div class="mb-2"><input type="text" name="image" class="form-control" placeholder="Dosya: kofte.jpg" required></div>
+                    <div class="mb-3"><select name="day" class="form-select"><option value="Monday">Pazartesi</option><option value="Tuesday">Salı</option><option value="Wednesday">Çarşamba</option><option value="Thursday">Perşembe</option><option value="Friday">Cuma</option><option value="Saturday">Cumartesi</option><option value="Sunday">Pazar</option></select></div>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold">Kaydet</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-header bg-secondary text-white fw-bold">Menü Listesi</div>
+            <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;">
+                <ul class="list-group list-group-flush">
+                    {% for item in all_menu %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div><strong>{{ item.name }}</strong><div class="small text-muted">{{ item.price }} TL</div></div>
+                        <form action="/delete_item/{{ item.id }}" method="POST" onsubmit="return confirm('Bu yemeği silmek istediğine emin misin?');">
+                            <button class="btn btn-sm btn-outline-danger">Sil 🗑️</button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm border-top border-5 border-success mb-4">
+            <div class="card-header bg-white fw-bold py-3">Aktif Siparişler</div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light"><tr><th>Masa</th><th>Siparişler</th><th>Tutar</th><th>İşlem</th></tr></thead>
+                    <tbody>
+                        {% for order in orders %}
+                            {% if order.status == 'Aktif' %}
+                            <tr>
+                                <td class="fw-bold fs-5 text-center">{{ order.table_no }}</td>
+                                <td class="small">{{ order.items }}</td>
+                                <td class="fw-bold text-success">{{ order.total_price }} ₺</td>
+                                <td>
+                                    <button type="button" class="btn btn-success btn-sm text-nowrap" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#paymentModal" 
+                                            onclick="setPaymentOrder('{{ order.id }}', '{{ order.total_price }}')">
+                                        Ödeme Al 💵
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-warning text-dark fw-bold">Rezervasyonlar</div>
+            <ul class="list-group list-group-flush">
+                {% for res in reservations %}
+                <li class="list-group-item p-3">
+                    <div class="d-flex justify-content-between">
+                        <div><strong>{{ res.customer_name }}</strong> ({{ res.party_size }} Kişi)<br><small>{{ res.date_time.replace('T', ' ') }}</small></div>
+                        <form action="/delete_reservation/{{ res.id }}" method="POST" onsubmit="return confirm('Rezervasyonu silmek istediğine emin misin?');"><button class="btn btn-sm btn-outline-danger">✖</button></form>
+                    </div>
+                    {% if res.status == 'Bekliyor' %}
+                        <form action="/assign_table/{{ res.id }}" method="POST" class="mt-2 d-flex">
+                            <select name="table_no" class="form-select form-select-sm me-1"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                            <button type="submit" class="btn btn-sm btn-dark">Ata</button>
+                        </form>
+                    {% else %}<div class="mt-1 small text-success">✅ Masa {{ res.assigned_table }}</div>{% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold">Ödeme Al & Masayı Kapat</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/pay_bill" method="POST">
+                <div class="modal-body p-4 text-center">
+                    <div class="display-4 mb-3">💳</div>
+                    <h4 class="fw-bold mb-3">Toplam Tutar: <span id="modalAmount" class="text-success">0</span> ₺</h4>
+                    <p class="text-muted">Ödeme yöntemini seçiniz.</p>
+                    <input type="hidden" name="order_id" id="modalOrderId">
+                    <div class="d-grid gap-2">
+                        <input type="radio" class="btn-check" name="payment_type" id="cash" value="Nakit" checked>
+                        <label class="btn btn-outline-success fw-bold py-2" for="cash">💵 Nakit</label>
+                        <input type="radio" class="btn-check" name="payment_type" id="card" value="Kredi Kartı">
+                        <label class="btn btn-outline-primary fw-bold py-2" for="card">💳 Kredi Kartı</label>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-success fw-bold px-4">Onayla ✅</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setPaymentOrder(id, price) {
+        document.getElementById('modalOrderId').value = id;
+        document.getElementById('modalAmount').innerText = price;
+    }
+</script>
+{% endblock %}
